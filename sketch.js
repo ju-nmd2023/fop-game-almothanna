@@ -26,3 +26,19 @@ function draw() {
   function keyPressed() {
     player.move(keyCode);
   }
+
+
+  function keyPressed() {
+
+    player.move(keyCode);
+
+  }
+  
+  class Player {
+    constructor() {
+
+      this.x = width / 2;
+      this.y = height - 22;
+      this.size = 22;
+    }
+}
