@@ -42,3 +42,19 @@ function draw() {
       this.size = 22;
     }
 }
+
+
+update() {
+
+  this.x = constrain (this.x, 0 , width - this.size);
+  this.y = constrain (this.y, 0 , height - this.size);
+
+}
+
+show() {
+
+
+  fill(0, 255, 0);
+  rect(this.x, this.y, this.size, this.size);
+
+  }
