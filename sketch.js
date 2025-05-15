@@ -44,17 +44,28 @@ function draw() {
 }
 
 
-update() {
+update()
 
+ {
   this.x = constrain (this.x, 0 , width - this.size);
   this.y = constrain (this.y, 0 , height - this.size);
-
 }
 
-show() {
 
 
+show() 
+{
   fill(0, 255, 0);
   rect(this.x, this.y, this.size, this.size);
 
-  }
+}
+   
+
+move(keyCode) {
+  if (keyCode === LEFT_ARROW) this.x -= 20;
+  else if (keyCode === RIGHT_ARROW) this.x += 20;
+  else if (keyCode === UP_ARROW) this.y -= 20;
+  else if (keyCode === DOWN_ARROW) this.y += 20;
+}
+
+}
