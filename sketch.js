@@ -9,6 +9,18 @@ let player;
 let vehicles = [];
 let logs = [];
 
+let score = 0;
+let lives = 3;
+let gameState = "start"; //  Game state: "start", "playing" or "gameover"
+
+// River/road lane positioning
+let lanes = {
+  roadStart: 400,
+  roadEnd: 520,
+  riverStart: 160,
+  riverEnd: 280
+};
+
 function setup() {
   createCanvas(600, 600);
   player = new Player();
