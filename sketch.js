@@ -55,6 +55,17 @@ function setup() {
 function draw() {
   background(50);
 
+  // Game State Logic
+  if (gameState === "start") {
+    drawStartScreen();
+  } else if (gameState === "playing") {
+    drawGame();
+  } else if (gameState === "gameover") {
+    drawEndScreen();
+  }
+}
+
+
   drawZones(); // Draw safe zones, river, and road
 
   // cars
@@ -86,11 +97,25 @@ function draw() {
 
   player.update();
   player.show();
-}
 
-function keyPressed() {
-  player.move(keyCode);
-}
+
+  function keyPressed() {
+    if (gameState === "start" && keyCode === ENTER) {
+      gameState = "playing";
+    }
+  
+    if (gameState === "gameover" && key === 'r') {
+      // Reset game
+      lives = 3;
+      score = 0;
+      gameState = "playing";
+      player.reset();
+    }
+  
+    if (gameState === "playing") {
+      player.move(keyCode);
+    }
+  }
 
 //  The visual lanes: river, road, safe zones so player doesnt die
 function drawZones() {
