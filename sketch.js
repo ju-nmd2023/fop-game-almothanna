@@ -1,4 +1,3 @@
-
 // REFERENCES:
 // - https://p5js.org/reference/
 // - https://www.w3schools.com/jsref/
@@ -24,7 +23,6 @@ let lanes = {
 function setup() {
   createCanvas(600, 600);
   player = new Player();
-
 
   // vehicles/ the red moving objects?
   // creates 3 lanes of cars, each with different speed and direction
@@ -59,63 +57,29 @@ function draw() {
   if (gameState === "start") {
     drawStartScreen();
   } else if (gameState === "playing") {
-    drawGame();
+    drawGame(); // Draw main game loop
   } else if (gameState === "gameover") {
     drawEndScreen();
   }
 }
 
-
-  drawZones(); // Draw safe zones, river, and road
-
-  // cars
-  for (let v of vehicles) {
-    v.move();
-    v.show();
-    if (v.hits(player)) {
-      player.reset(); // a collision with car resets player
-    }
+function keyPressed() {
+  if (gameState === "start" && keyCode === ENTER) {
+    gameState = "playing";
   }
 
-  // logs + water death
-  let onLog = false;
-  for (let l of logs) {
-    l.move();
-    l.show();
-    if (l.carries(player)) {
-      // Player rides log – a mechanic from classic Frogger youtube vidoe
-      player.x += l.speed * l.dir;
-      onLog = true;
-    }
+  if (gameState === "gameover" && key === 'r') {
+    // Reset game
+    lives = 3;
+    score = 0;
+    gameState = "playing";
+    player.reset();
   }
 
-  // if player is in river area but not on a log, they die
-  // Used bounding box Y check (from p5.js reference)
-  if (player.y >= 160 && player.y < 280 && !onLog) {
-    player.reset(); // “Fall in water” effect
+  if (gameState === "playing") {
+    player.move(keyCode);
   }
-
-  player.update();
-  player.show();
-
-
-  function keyPressed() {
-    if (gameState === "start" && keyCode === ENTER) {
-      gameState = "playing";
-    }
-  
-    if (gameState === "gameover" && key === 'r') {
-      // Reset game
-      lives = 3;
-      score = 0;
-      gameState = "playing";
-      player.reset();
-    }
-  
-    if (gameState === "playing") {
-      player.move(keyCode);
-    }
-  }
+}
 
 //  The visual lanes: river, road, safe zones so player doesnt die
 function drawZones() {
@@ -234,7 +198,6 @@ class Log {
   }
 }
 
-
 function drawHUD() {
   fill(255);
   textSize(18);
@@ -261,4 +224,53 @@ function drawEndScreen() {
   textSize(18);
   text("Score: " + score, width / 2, height / 2);
   text("Press R to Restart", width / 2, height / 2 + 40);
+}
+
+//  Draw the game state + log movement + scoring logic
+function drawGame() {
+  drawZones(); // Draw safe zones, river, and road
+  drawHUD(); // Draw score and lives
+
+  // cars
+  for (let v of vehicles) {
+    v.move();
+    v.show();
+    if (v.hits(player)) {
+      loseLife(); // handle life deduction
+    }
+  }
+
+  // logs + water death
+  let onLog = false;
+  for (let l of logs) {
+    l.move();
+    l.show();
+    if (l.carries(player)) {
+      player.x += l.speed * l.dir;
+      onLog = true;
+    }
+  }
+
+  // if player is in river area but not on a log, they die
+  if (player.y >= lanes.riverStart && player.y < lanes.riverEnd && !onLog) {
+    loseLife();
+  }
+
+  player.update();
+  player.show();
+
+  // player reached top safely
+  if (player.y < 40) {
+    score++;
+    player.reset();
+  }
+}
+
+//  loseLife() to handle lives and game over
+function loseLife() {
+  lives--;
+  if (lives <= 0) {
+    gameState = "gameover";
+  }
+  player.reset();
 }
