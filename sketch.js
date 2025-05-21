@@ -233,3 +233,32 @@ class Log {
     );
   }
 }
+
+
+function drawHUD() {
+  fill(255);
+  textSize(18);
+  text("Score: " + score, 10, 20);
+  text("Lives: " + lives, 500, 20);
+}
+
+function drawStartScreen() {
+  background(30);
+  fill(255);
+  textAlign(CENTER);
+  textSize(28);
+  text("FROGGER", width / 2, height / 2 - 40);
+  textSize(18);
+  text("Press ENTER to Start", width / 2, height / 2);
+}
+
+function drawEndScreen() {
+  background(0);
+  fill(255);
+  textAlign(CENTER);
+  textSize(28);
+  text("Game Over", width / 2, height / 2 - 40);
+  textSize(18);
+  text("Score: " + score, width / 2, height / 2);
+  text("Press R to Restart", width / 2, height / 2 + 40);
+}
