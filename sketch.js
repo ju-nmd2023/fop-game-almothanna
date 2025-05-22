@@ -96,10 +96,14 @@ function drawGame() {
   if (player.y < 40) {
     score++;
     player.reset();
+    if (score >= 3) {
+      gameState = "win";
+    }
   }
 
   drawHUD();
 }
+
 
 function loseLife() {
   lives--;
@@ -114,7 +118,7 @@ function keyPressed() {
     gameState = "playing";
   }
 
-  if (gameState === "gameover" && key === 'r') {
+  if ((gameState === "gameover" || gameState === "win") && key === 'r') {
     lives = 3;
     score = 0;
     gameState = "playing";
@@ -258,3 +262,5 @@ function drawEndScreen() {
   text("Score: " + score, width / 2, height / 2);
   text("Press R to Restart", width / 2, height / 2 + 40);
 }
+
+
