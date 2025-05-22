@@ -4,15 +4,17 @@
 // - Log logic inspired by: https://youtu.be/giXV6xErw0Y (Frogger Game)
 // - Some collision logic and wraparound code explained by ChatGPT and p5.js forums, Code is cleaned as well and some are organised by CHATGPT.
 
+
+
+
 let player;
 let vehicles = [];
 let logs = [];
 
 let score = 0;
 let lives = 3;
-let gameState = "start"; //  Game state: "start", "playing" or "gameover"
+let gameState = "start";
 
-// River/road lane positioning
 let lanes = {
   roadStart: 400,
   roadEnd: 520,
@@ -24,28 +26,28 @@ function setup() {
   createCanvas(600, 600);
   player = new Player();
 
-  // vehicles/ the red moving objects?
-  // creates 3 lanes of cars, each with different speed and direction
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
       let y = 400 + i * 40;
       let x = j * 220;
-      let speed = 2 + i; // faster lanes as we go up
-      let dir = i % 2 === 0 ? 1 : -1; // alternate directions
+      let speed = 2 + i;
+      let dir = i % 2 === 0 ? 1 : -1;
       vehicles.push(new Vehicle(x, y, speed, dir));
     }
   }
 
-  // Logs
-  // 🪵 Each log lane has 2 logs. Log movement logic inspired by The Coding Train
+  
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 2; j++) {
-      let y = 160 + i * 40; // river zones start at y=160
-      // stagger logs so they don’t all align (ChatGPT suggestion)
-      let x = j * 300 + (i % 2 === 0 ? 0 : 100);
+      let y = 160 + i * 40;
+
+      let x;
+      if (i === 0 && j === 0) x = 10; 
+      else x = j * 250 + (i % 2 === 0 ? 100 : 50);
+
       let speed = 2 + i * 0.5;
       let dir = i % 2 === 0 ? 1 : -1;
-      logs.push(new Log(x, y, 100, speed, dir));
+      logs.push(new Log(x, y, 120, speed, dir));
     }
   }
 }
@@ -53,14 +55,55 @@ function setup() {
 function draw() {
   background(50);
 
-  // Game State Logic
   if (gameState === "start") {
     drawStartScreen();
   } else if (gameState === "playing") {
-    drawGame(); // Draw main game loop
+    drawGame();
   } else if (gameState === "gameover") {
     drawEndScreen();
   }
+}
+
+function drawGame() {
+  drawZones();
+
+  for (let v of vehicles) {
+    v.move();
+    v.show();
+    if (v.hits(player)) loseLife();
+  }
+
+  let onLog = false;
+  for (let l of logs) {
+    l.move();
+    l.show();
+    if (l.carries(player)) {
+      player.x += l.speed * l.dir;
+      onLog = true;
+    }
+  }
+
+  if (player.y >= lanes.riverStart && player.y < lanes.riverEnd && !onLog) {
+    loseLife();
+  }
+
+  player.update();
+  player.show();
+
+  if (player.y < 40) {
+    score++;
+    player.reset();
+  }
+
+  drawHUD();
+}
+
+function loseLife() {
+  lives--;
+  if (lives <= 0) {
+    gameState = "gameover";
+  }
+  player.reset();
 }
 
 function keyPressed() {
@@ -69,7 +112,6 @@ function keyPressed() {
   }
 
   if (gameState === "gameover" && key === 'r') {
-    // Reset game
     lives = 3;
     score = 0;
     gameState = "playing";
@@ -81,20 +123,18 @@ function keyPressed() {
   }
 }
 
-//  The visual lanes: river, road, safe zones so player doesnt die
 function drawZones() {
-  fill(100); // Safe zones
+  fill(100);
   rect(0, 0, width, 40);
   rect(0, height - 40, width, 40);
 
-  fill(150); // Road section
+  fill(150);
   rect(0, 400, width, 120);
 
-  fill(30, 144, 255); // River (dodger blue)
+  fill(30, 144, 255);
   rect(0, 160, width, 120);
 }
 
-// This is the player class 
 class Player {
   constructor() {
     this.size = 22;
@@ -102,13 +142,11 @@ class Player {
   }
 
   reset() {
-    // to start at the center bottom
     this.x = width / 2;
     this.y = height - this.size - 10;
   }
 
   update() {
-    // This to keeping the player inside the screen
     this.x = constrain(this.x, 0, width - this.size);
     this.y = constrain(this.y, 0, height - this.size);
   }
@@ -119,15 +157,15 @@ class Player {
   }
 
   move(keyCode) {
-    // The movement code from p5.js keycode references
-    if (keyCode === LEFT_ARROW) this.x -= 20;
-    else if (keyCode === RIGHT_ARROW) this.x += 20;
-    else if (keyCode === UP_ARROW) this.y -= 20;
-    else if (keyCode === DOWN_ARROW) this.y += 20;
+    let step = 32; 
+
+    if (keyCode === LEFT_ARROW) this.x -= step;
+    else if (keyCode === RIGHT_ARROW) this.x += step;
+    else if (keyCode === UP_ARROW) this.y -= step;
+    else if (keyCode === DOWN_ARROW) this.y += step;
   }
 }
 
-// Vehicle class 
 class Vehicle {
   constructor(x, y, speed, dir) {
     this.x = x;
@@ -139,21 +177,17 @@ class Vehicle {
   }
 
   move() {
-    // Horizontal movement with looping at screen edge
     this.x += this.speed * this.dir;
-
-    // Wraparound code adapted from ChatGPT suggestion
     if (this.x > width + this.w) this.x = -this.w;
     if (this.x < -this.w) this.x = width + this.w;
   }
 
   show() {
-    fill(255, 0, 0); // Red car
+    fill(255, 0, 0);
     rect(this.x, this.y, this.w, this.h);
   }
 
   hits(player) {
-    // Axis-Aligned Bounding Box collision (from W3Schools)
     return (
       player.x < this.x + this.w &&
       player.x + player.size > this.x &&
@@ -163,7 +197,6 @@ class Vehicle {
   }
 }
 
-//  Log class
 class Log {
   constructor(x, y, w, speed, dir) {
     this.x = x;
@@ -176,19 +209,16 @@ class Log {
 
   move() {
     this.x += this.speed * this.dir;
-
-    // Log wrap-around inspired by vehicle logic (Gotten by CHATGPT)
     if (this.x > width + this.w) this.x = -this.w;
     if (this.x < -this.w) this.x = width + this.w;
   }
 
   show() {
-    fill(139, 69, 19); // Brown color (the wooden log)
+    fill(139, 69, 19);
     rect(this.x, this.y, this.w, this.h);
   }
 
   carries(player) {
-    // This Checks if the player overlaps log bounds
     return (
       player.x + player.size > this.x &&
       player.x < this.x + this.w &&
@@ -224,53 +254,4 @@ function drawEndScreen() {
   textSize(18);
   text("Score: " + score, width / 2, height / 2);
   text("Press R to Restart", width / 2, height / 2 + 40);
-}
-
-//  Draw the game state + log movement + scoring logic
-function drawGame() {
-  drawZones(); // Draw safe zones, river, and road
-  drawHUD(); // Draw score and lives
-
-  // cars
-  for (let v of vehicles) {
-    v.move();
-    v.show();
-    if (v.hits(player)) {
-      loseLife(); // handle life deduction
-    }
-  }
-
-  // logs + water death
-  let onLog = false;
-  for (let l of logs) {
-    l.move();
-    l.show();
-    if (l.carries(player)) {
-      player.x += l.speed * l.dir;
-      onLog = true;
-    }
-  }
-
-  // if player is in river area but not on a log, they die
-  if (player.y >= lanes.riverStart && player.y < lanes.riverEnd && !onLog) {
-    loseLife();
-  }
-
-  player.update();
-  player.show();
-
-  // player reached top safely
-  if (player.y < 40) {
-    score++;
-    player.reset();
-  }
-}
-
-//  loseLife() to handle lives and game over
-function loseLife() {
-  lives--;
-  if (lives <= 0) {
-    gameState = "gameover";
-  }
-  player.reset();
 }
