@@ -61,8 +61,11 @@ function draw() {
     drawGame();
   } else if (gameState === "gameover") {
     drawEndScreen();
+  } else if (gameState === "win") {
+    drawWinScreen();
   }
 }
+
 
 function drawGame() {
   drawZones();
