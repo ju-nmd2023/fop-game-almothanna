@@ -238,8 +238,8 @@ class Log {
 function drawHUD() {
   fill(255);
   textSize(18);
-  text("Score: " + score, 10, 20);
-  text("Lives: " + lives, 500, 20);
+  text("Score: " + score, 50, 20); 
+  text("Lives: " + lives, 550, 20);
 }
 
 function drawStartScreen() {
@@ -247,9 +247,9 @@ function drawStartScreen() {
   fill(255);
   textAlign(CENTER);
   textSize(28);
-  text("FROGGER", width / 2, height / 2 - 40);
+  text("Welcome to THE FROGGER GAME.", width / 2, height / 2 - 40);
   textSize(18);
-  text("Press ENTER to Start", width / 2, height / 2);
+  text("Press ENTER to BEGIN.", width / 2, height / 2);
 }
 
 function drawEndScreen() {
@@ -257,10 +257,20 @@ function drawEndScreen() {
   fill(255);
   textAlign(CENTER);
   textSize(28);
-  text("Game Over", width / 2, height / 2 - 40);
+  text("Game Over :'(", width / 2, height / 2 - 40);
   textSize(18);
   text("Score: " + score, width / 2, height / 2);
-  text("Press R to Restart", width / 2, height / 2 + 40);
+  text("Press R to Restart ;)", width / 2, height / 2 + 40);
 }
 
 
+function drawWinScreen() {
+  background(20, 100, 20);
+  fill(255);
+  textAlign(CENTER);
+  textSize(28);
+  text("You Win!", width / 2, height / 2 - 40);
+  textSize(18);
+  text("Final Score: " + score, width / 2, height / 2);
+  text("Press R to Restart", width / 2, height / 2 + 40);
+}
